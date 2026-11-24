@@ -10,7 +10,6 @@ export interface AdminProductItem {
   category: string;
   categoryLabel: string;
   price: number;
-  tag: string | null;
   imageUrl: string;
   imageUrls: string[];
   description: string;

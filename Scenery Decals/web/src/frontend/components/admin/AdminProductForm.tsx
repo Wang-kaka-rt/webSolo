@@ -81,7 +81,7 @@ export function AdminProductForm({ product, categories = fallbackCategories }: {
       title: text.en.title, titleZh: text.zh.title, titleKo: text.ko.title,
       description: text.en.description, descriptionZh: text.zh.description, descriptionKo: text.ko.description,
       slug, category: selected.slug, categoryLabel: selected.name, price: Number(data.get("price")),
-      tag: String(data.get("tag") ?? "") || null, imageUrl: imageUrls[0], imageUrls,
+      imageUrl: imageUrls[0], imageUrls,
       sheetCount: String(data.get("sheetCount") ?? ""), dimensions: String(data.get("dimensions") ?? ""),
       finishes: String(data.get("finishes") ?? "").split("/").map((item) => item.trim()).filter(Boolean),
       section: String(data.get("section") ?? "new-arrival"), isActive: data.get("isActive") === "on",

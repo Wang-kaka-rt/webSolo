@@ -9,13 +9,6 @@ const finishTranslations = [
   ["Holographic Sparkle", "Holographic Sparkle", "镭射闪光", "홀로그램 스파클"],
 ] as const;
 
-function localizedTag(tag: string | null, locale: "zh" | "ko") {
-  if (!tag) return null;
-  if (tag === "Hot") return locale === "zh" ? "热销" : "인기";
-  if (tag === "New") return locale === "zh" ? "新品" : "신상품";
-  return tag;
-}
-
 config({ path: ".env.local", quiet: true });
 
 async function main() {
@@ -49,8 +42,7 @@ async function main() {
         `UPDATE products SET
           title_zh = ?, title_ko = ?,
           description_zh = ?, description_ko = ?,
-          category_label_zh = ?, category_label_ko = ?,
-          tag_zh = ?, tag_ko = ?
+          category_label_zh = ?, category_label_ko = ?
          WHERE id = ?`,
         [
           chinese.title,
@@ -59,8 +51,6 @@ async function main() {
           korean.description,
           chinese.categoryLabel,
           korean.categoryLabel,
-          localizedTag(product.tag, "zh"),
-          localizedTag(product.tag, "ko"),
           product.id,
         ]
       );

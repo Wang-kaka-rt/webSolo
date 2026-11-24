@@ -30,16 +30,6 @@ export function ProductCard({ product }: ProductCardProps) {
           />
         </Link>
 
-        {product.tag && (
-          <span
-            className={`pointer-events-none absolute left-2.5 top-2.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-white shadow-sm ${
-              product.tagCode === "Hot" ? "bg-[#EE829B]" : "bg-[#88BC6E]"
-            }`}
-          >
-            {product.tag}
-          </span>
-        )}
-
         <div className="absolute right-2.5 top-2.5 flex items-center gap-1.5">
           <button
             type="button"

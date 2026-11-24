@@ -7,8 +7,6 @@ export interface FinishOption {
   label: string;
 }
 
-export type ProductTag = string | null;
-
 export interface Review {
   id: string;
   author: string;
@@ -27,8 +25,6 @@ export interface Product {
   rating: number;
   reviewCount: string;
   rawReviewCount: number;
-  tag: ProductTag;
-  tagCode?: ProductTag;
   image: string;
   images?: string[];
   description: string;

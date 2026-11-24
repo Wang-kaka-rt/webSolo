@@ -42,9 +42,6 @@ async function main() {
       ["category_label_zh", "VARCHAR(120) NULL"],
       ["category_label_ko", "VARCHAR(120) NULL"],
       ["price", "DECIMAL(10,2) NOT NULL DEFAULT 0"],
-      ["tag", "VARCHAR(20) NULL"],
-      ["tag_zh", "VARCHAR(20) NULL"],
-      ["tag_ko", "VARCHAR(20) NULL"],
       ["image_url", "VARCHAR(500) NOT NULL DEFAULT ''"],
       ["images_json", "JSON NULL"],
       ["description", "TEXT NOT NULL"],
@@ -60,6 +57,10 @@ async function main() {
       if (Array.isArray(column) && column.length === 0) {
         await connection.query(`ALTER TABLE products ADD COLUMN ${name} ${definition}`);
       }
+    }
+    for (const name of ["tag", "tag_zh", "tag_ko"]) {
+      const [column] = await connection.query(`SHOW COLUMNS FROM products LIKE '${name}'`);
+      if (Array.isArray(column) && column.length > 0) await connection.query(`ALTER TABLE products DROP COLUMN ${name}`);
     }
     const categoryColumns = [["name_zh", "VARCHAR(120) NULL"], ["name_ko", "VARCHAR(120) NULL"], ["image_url", "VARCHAR(500) NOT NULL DEFAULT ''"]] as const;
     for (const [name, definition] of categoryColumns) { const [column] = await connection.query(`SHOW COLUMNS FROM product_categories LIKE '${name}'`); if (Array.isArray(column) && column.length === 0) await connection.query(`ALTER TABLE product_categories ADD COLUMN ${name} ${definition}`); }

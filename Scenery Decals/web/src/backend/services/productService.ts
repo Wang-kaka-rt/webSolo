@@ -10,7 +10,6 @@ const productSchema = z.object({
   category: z.string().trim().min(1, "请填写分类标识。").max(80),
   categoryLabel: z.string().trim().min(1, "请填写分类名称。").max(120),
   price: z.coerce.number().min(0, "价格不能小于 0。").max(999999),
-  tag: z.string().trim().max(20).nullable().optional(),
   imageUrl: z.string().trim().min(1, "请填写商品图片地址。").max(500),
   imageUrls: z.array(z.string().trim().min(1).max(500)).min(1, "请至少上传一张商品图片。").max(12),
   description: z.string().trim().min(1, "请填写商品描述。").max(10000),

@@ -90,10 +90,6 @@ export function NewArrivalsCarousel() {
                   />
                 </Link>
 
-                <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-[#88BC6E] px-2.5 py-0.5 text-[11px] font-semibold text-white shadow-sm">
-                  New
-                </span>
-
                 <button
                   type="button"
                   onClick={() => addToCartAsync(item.id)}

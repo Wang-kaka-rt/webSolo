@@ -11,7 +11,7 @@ const FREE_SHIPPING_THRESHOLD = 50;
 interface StoreProductRow extends RowDataPacket {
   id: string; slug: string; title: string; title_zh: string | null; title_ko: string | null;
   category: string; category_label: string; category_label_zh: string | null; category_label_ko: string | null;
-  price: string | number; tag: string | null; tag_zh: string | null; tag_ko: string | null; image_url: string; images_json: string | string[] | null; description: string; description_zh: string | null; description_ko: string | null;
+  price: string | number; image_url: string; images_json: string | string[] | null; description: string; description_zh: string | null; description_ko: string | null;
   sheet_count: string; dimensions: string; finishes_json: string | string[] | null; section: "best-seller" | "new-arrival" | "both"; on_hand_quantity: number; reserved_quantity: number;
 }
 interface StoreCategoryRow extends RowDataPacket {
@@ -51,7 +51,7 @@ function toProduct(row: StoreProductRow, locale: StoreLocale, finishLabels: Reco
     title: localized(locale, row.title, row.title_zh, row.title_ko),
     category: row.category,
     categoryLabel: localized(locale, row.category_label, row.category_label_zh, row.category_label_ko),
-    price: Number(row.price), tag: localized(locale, row.tag, row.tag_zh, row.tag_ko), tagCode: row.tag, image: parseImages(row.images_json, row.image_url)[0] ?? browserImageUrl(row.image_url), images: parseImages(row.images_json, row.image_url),
+    price: Number(row.price), image: parseImages(row.images_json, row.image_url)[0] ?? browserImageUrl(row.image_url), images: parseImages(row.images_json, row.image_url),
     description: localized(locale, row.description, row.description_zh, row.description_ko),
     sheetCount: row.sheet_count, dimensions: row.dimensions, finishes: parseFinishes(row.finishes_json), finishLabels, section: row.section, availableQuantity: Math.max(0, Number(row.on_hand_quantity) - Number(row.reserved_quantity)),
     rating: 0, reviewCount: "0", rawReviewCount: 0, reviews: [],
@@ -59,7 +59,7 @@ function toProduct(row: StoreProductRow, locale: StoreLocale, finishLabels: Reco
 }
 
 const productSelect = `SELECT p.id, p.slug, p.title, p.title_zh, p.title_ko, p.category, p.category_label, p.category_label_zh, p.category_label_ko,
- p.price, p.tag, p.tag_zh, p.tag_ko, p.image_url, p.images_json, p.description, p.description_zh, p.description_ko, p.sheet_count, p.dimensions, p.finishes_json, p.section,
+ p.price, p.image_url, p.images_json, p.description, p.description_zh, p.description_ko, p.sheet_count, p.dimensions, p.finishes_json, p.section,
  COALESCE(i.on_hand_quantity, 0) AS on_hand_quantity, COALESCE(i.reserved_quantity, 0) AS reserved_quantity
  FROM products p LEFT JOIN inventory i ON i.product_id = p.id WHERE p.is_active = TRUE`;
 

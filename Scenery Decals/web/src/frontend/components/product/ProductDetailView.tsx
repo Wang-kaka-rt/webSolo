@@ -138,15 +138,6 @@ export function ProductDetailView({
                 referrerPolicy="no-referrer"
                 className="h-full w-full object-cover"
               />
-              {product.tag && (
-                <span
-                  className={`absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-semibold text-white shadow-sm ${
-                    product.tagCode === "Hot" ? "bg-[#EE829B]" : "bg-[#88BC6E]"
-                  }`}
-                >
-                  {displayedProduct.tag}
-                </span>
-              )}
               <button
                 type="button"
                 onClick={() => toggleWishlist(product.id)}

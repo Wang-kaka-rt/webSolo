@@ -1,4 +1,4 @@
-import type { CategoryTile, Product, ProductTag, StickerFinish } from "@/shared/types/store";
+import type { CategoryTile, Product, StickerFinish } from "@/shared/types/store";
 
 export type StoreLocale = "zh" | "en" | "ko";
 
@@ -72,14 +72,10 @@ export function categoryName(slug: CategoryTile["slug"], locale: StoreLocale) {
 
 export function localizeProduct(product: Product, locale: StoreLocale): Product {
   const copy = locale === "en" ? undefined : productCopy[product.id]?.[locale];
-  return { ...product, ...copy, categoryLabel: categoryName(product.category, locale), tag: localizeTag(product.tag, locale) };
+  return { ...product, ...copy, categoryLabel: categoryName(product.category, locale) };
 }
 
 export function localizeFinish(finish: StickerFinish, locale: StoreLocale) {
   return finishCopy[finish][locale];
 }
 
-export function localizeTag(tag: ProductTag, locale: StoreLocale): ProductTag {
-  if (!tag || locale === "en") return tag;
-  return tag === "Hot" ? (locale === "zh" ? "热销" : "인기") : (locale === "zh" ? "新品" : "신상품");
-}

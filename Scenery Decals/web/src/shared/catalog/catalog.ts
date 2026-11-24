@@ -68,7 +68,6 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: "2.1k",
     rawReviewCount: 2140,
-    tag: "Hot",
     image: "/images/stickers_flower_garden_1795164162716.jpg",
     description:
       "A sunny meadow of kiss-cut pastel tulips, cherry blossoms, daisies, and shy peeking bunnies. Printed on waterproof matte vinyl for planners, phone cases, and letters.",
@@ -103,7 +102,6 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: "1.5k",
     rawReviewCount: 1520,
-    tag: "New",
     image: "/images/stickers_dreamy_world_1795164162404.jpg",
     description:
       "Lavender castle turrets, smiling clouds, crescent moons, and pastel ribbons. Designed to turn monthly calendar spreads into storybooks.",
@@ -131,7 +129,6 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.8,
     reviewCount: "1.8k",
     rawReviewCount: 1830,
-    tag: "Hot",
     image: "/images/stickers_little_animals_1795164162625.jpg",
     description:
       "Chubby cocoa bears, carrot-munching bunnies, and cheerful little chicks with rosy cheeks. Ideal for daily mood trackers and gift wrapping.",
@@ -159,7 +156,6 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.8,
     reviewCount: "1.2k",
     rawReviewCount: 1210,
-    tag: null,
     image: "/images/stickers_vintage_diary_1795164162616.jpg",
     description:
       "Delicate pressed wildflowers, heirloom apothecary labels, lace frames, and soft watercolor bouquets on translucent cream washi paper.",
@@ -187,7 +183,6 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: "420",
     rawReviewCount: 420,
-    tag: "New",
     image: "/images/stickers_cherry_blossom_1795166394876.jpg",
     description:
       "Springtime sakura branches, fluttering petals, and tiny white bunnies wearing flower crowns for sunny scrapbook corners.",
@@ -207,7 +202,6 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: "860",
     rawReviewCount: 860,
-    tag: "New",
     image: "/images/stickers_sweet_days_1795164162689.jpg",
     description:
       "Smiling strawberry shortcakes, stacked pastel macarons, teapots, and satin ribbons baked into sweet little planner treats.",
@@ -235,7 +229,6 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.8,
     reviewCount: "640",
     rawReviewCount: 640,
-    tag: "New",
     image: "/images/stickers_pastel_ribbons_1795166395787.jpg",
     description:
       "Satin bows, gingham ribbons, pearl heart charms, and lace frames designed to decorate polaroids and to-do headers.",
@@ -255,7 +248,6 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: "510",
     rawReviewCount: 510,
-    tag: "New",
     image: "/images/stickers_starlight_moon_1795166395752.jpg",
     description:
       "Sleeping bunnies on pastel clouds, golden crescent moons, rainbows, and dreamy starlight highlights.",
@@ -275,7 +267,6 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.8,
     reviewCount: "730",
     rawReviewCount: 730,
-    tag: "New",
     image: "/images/stickers_botanical_herbarium_1795166396617.jpg",
     description:
       "Pressed chamomile daisies, dried eucalyptus stems, wax seals, and antique stamps for serene nature journaling.",
@@ -295,7 +286,6 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.9,
     reviewCount: "980",
     rawReviewCount: 980,
-    tag: "New",
     image: "/images/stickers_daily_moments_1795164162424.jpg",
     description:
       "Latte art cups, flaky croissants, reading bears under cozy blankets, and tiny potted succulents for quiet morning spreads.",

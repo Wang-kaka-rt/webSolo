@@ -7,14 +7,14 @@ import type { AdminProductItem, ProductSection } from "@/shared/types/productAdm
 
 interface ProductRow extends RowDataPacket {
   id: string; product_code: number; slug: string; title: string; title_zh: string | null; title_ko: string | null; category: string; category_label: string; price: string | number;
-  tag: string | null; image_url: string; images_json: string | string[] | null; description: string; description_zh: string | null; description_ko: string | null; sheet_count: string; dimensions: string;
+  image_url: string; images_json: string | string[] | null; description: string; description_zh: string | null; description_ko: string | null; sheet_count: string; dimensions: string;
   finishes_json: string | string[] | null; section: ProductSection; is_active: number; on_hand_quantity: number; reserved_quantity: number;
 }
 
 interface CountRow extends RowDataPacket { total: number; }
 
 export interface ProductWriteInput {
-  slug: string; title: string; titleZh: string; titleKo: string; category: string; categoryLabel: string; price: number; tag: string | null;
+  slug: string; title: string; titleZh: string; titleKo: string; category: string; categoryLabel: string; price: number;
   imageUrl: string; imageUrls: string[]; description: string; descriptionZh: string; descriptionKo: string; sheetCount: string; dimensions: string; finishes: string[];
   section: ProductSection; isActive: boolean;
 }
@@ -30,12 +30,12 @@ function toProduct(row: ProductRow): AdminProductItem {
   else if (row.images_json) { try { imageUrls = JSON.parse(row.images_json) as string[]; } catch { imageUrls = []; } }
   if (!imageUrls.length && row.image_url) imageUrls = [row.image_url];
   return { id: row.id, productCode: Number(row.product_code), slug: row.slug, title: row.title, titleZh: row.title_zh ?? "", titleKo: row.title_ko ?? "", category: row.category, categoryLabel: row.category_label,
-    price: Number(row.price), tag: row.tag, imageUrl: imageUrls[0] ?? row.image_url, imageUrls, description: row.description, descriptionZh: row.description_zh ?? row.description, descriptionKo: row.description_ko ?? row.description,
+    price: Number(row.price), imageUrl: imageUrls[0] ?? row.image_url, imageUrls, description: row.description, descriptionZh: row.description_zh ?? row.description, descriptionKo: row.description_ko ?? row.description,
     sheetCount: row.sheet_count, dimensions: row.dimensions, finishes, section: row.section,
     isActive: Boolean(row.is_active), onHandQuantity: row.on_hand_quantity, reservedQuantity: row.reserved_quantity };
 }
 
-const productSelect = `SELECT p.id, p.product_code, p.slug, p.title, p.title_zh, p.title_ko, p.category, p.category_label, p.price, p.tag, p.image_url, p.images_json,
+const productSelect = `SELECT p.id, p.product_code, p.slug, p.title, p.title_zh, p.title_ko, p.category, p.category_label, p.price, p.image_url, p.images_json,
   p.description, p.description_zh, p.description_ko, p.sheet_count, p.dimensions, p.finishes_json, p.section, p.is_active,
   i.on_hand_quantity, i.reserved_quantity FROM products p INNER JOIN inventory i ON i.product_id = p.id`;
 
@@ -89,9 +89,9 @@ export async function createAdminProduct(input: ProductWriteInput, initialStock:
   try {
     await connection.beginTransaction();
     const [created] = await connection.execute<ResultSetHeader>(`INSERT INTO products
-      (id, slug, title, title_zh, title_ko, category, category_label, price, tag, image_url, images_json, description, description_zh, description_ko, sheet_count, dimensions, finishes_json, section, is_active)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, input.slug, input.title, input.titleZh, input.titleKo, input.category, input.categoryLabel, input.price, input.tag, input.imageUrls[0], JSON.stringify(input.imageUrls),
+      (id, slug, title, title_zh, title_ko, category, category_label, price, image_url, images_json, description, description_zh, description_ko, sheet_count, dimensions, finishes_json, section, is_active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, input.slug, input.title, input.titleZh, input.titleKo, input.category, input.categoryLabel, input.price, input.imageUrls[0], JSON.stringify(input.imageUrls),
         input.description, input.descriptionZh, input.descriptionKo, input.sheetCount, input.dimensions, JSON.stringify(input.finishes), input.section, input.isActive]);
     await connection.execute("INSERT INTO inventory (product_id, on_hand_quantity, reserved_quantity) VALUES (?, ?, 0)", [id, initialStock]);
     await connection.commit();
@@ -104,9 +104,9 @@ export async function createAdminProduct(input: ProductWriteInput, initialStock:
 
 export async function updateAdminProduct(id: string, input: ProductWriteInput): Promise<AdminProductItem | null> {
   const [result] = await getMySqlPool().execute<ResultSetHeader>(`UPDATE products SET slug = ?, title = ?, category = ?,
-    title_zh = ?, title_ko = ?, category_label = ?, price = ?, tag = ?, image_url = ?, images_json = ?, description = ?, description_zh = ?, description_ko = ?, sheet_count = ?, dimensions = ?,
+    title_zh = ?, title_ko = ?, category_label = ?, price = ?, image_url = ?, images_json = ?, description = ?, description_zh = ?, description_ko = ?, sheet_count = ?, dimensions = ?,
     finishes_json = ?, section = ?, is_active = ? WHERE id = ?`,
-    [input.slug, input.title, input.category, input.titleZh, input.titleKo, input.categoryLabel, input.price, input.tag, input.imageUrls[0], JSON.stringify(input.imageUrls),
+    [input.slug, input.title, input.category, input.titleZh, input.titleKo, input.categoryLabel, input.price, input.imageUrls[0], JSON.stringify(input.imageUrls),
       input.description, input.descriptionZh, input.descriptionKo, input.sheetCount, input.dimensions, JSON.stringify(input.finishes), input.section, input.isActive, id]);
   if (result.affectedRows !== 1) return null;
   return getAdminProduct(id);
