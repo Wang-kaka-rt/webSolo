@@ -35,14 +35,14 @@ export default async function AdminLoginPage({
         </div>
         {!configured ? (
           <div className="mt-5 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-800">
-            登录服务尚未完成配置，请检查 <code>ADMIN_SESSION_SECRET</code> 后重启服务。
+            登录服务尚未完成配置，请检查 <code>ADMIN_SESSION_SECRET</code>、<code>INITIAL_ADMIN_EMAIL</code> 和 <code>INITIAL_ADMIN_PASSWORD</code> 后重启服务。
           </div>
         ) : (
           <form action={loginAdmin} className="mt-6 space-y-4">
             <fieldset className="group rounded-md border border-slate-300 px-3 pb-2 pt-0 transition focus-within:border-violet-500 focus-within:ring-1 focus-within:ring-violet-500">
               <legend className="bg-white px-1 text-sm font-medium leading-none text-slate-700 transition group-focus-within:font-bold group-focus-within:text-violet-600">管理员账号</legend>
               <input
-                className="w-full bg-transparent py-1.5 outline-none"
+                className="w-full appearance-none border-0 bg-transparent py-1.5 outline-none focus:border-0 focus:ring-0"
                 id="email"
                 name="email"
                 type="email"
@@ -53,7 +53,7 @@ export default async function AdminLoginPage({
             <fieldset className="group rounded-md border border-slate-300 px-3 pb-2 pt-0 transition focus-within:border-violet-500 focus-within:ring-1 focus-within:ring-violet-500">
               <legend className="bg-white px-1 text-sm font-medium leading-none text-slate-700 transition group-focus-within:font-bold group-focus-within:text-violet-600">后台密码</legend>
               <input
-                className="w-full bg-transparent py-1.5 outline-none"
+                className="w-full appearance-none border-0 bg-transparent py-1.5 outline-none focus:border-0 focus:ring-0"
                 id="password"
                 name="password"
                 type="password"

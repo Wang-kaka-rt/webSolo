@@ -18,6 +18,12 @@ function sessionSecret() {
   return process.env.ADMIN_SESSION_SECRET?.trim() || null;
 }
 
+function environmentAdminCredentials() {
+  const email = process.env.INITIAL_ADMIN_EMAIL?.trim().toLowerCase();
+  const password = process.env.INITIAL_ADMIN_PASSWORD;
+  return email && password ? { email, password } : null;
+}
+
 function safeEqual(left: string, right: string) {
   const leftBuffer = Buffer.from(left);
   const rightBuffer = Buffer.from(right);
@@ -29,12 +35,22 @@ function sign(payload: string, secret: string) {
 }
 
 export function isAdminAuthConfigured() {
-  return Boolean(sessionSecret());
+  return Boolean(sessionSecret() && environmentAdminCredentials());
 }
 
 export async function authenticateAdmin(email: string, password: string) {
   const normalizedEmail = email.trim().toLowerCase();
   if (!normalizedEmail || !password) return null;
+
+  // Environment credentials are the authoritative login when configured.
+  // This makes changing .env.local / Hostinger variables take effect after restart.
+  const configured = environmentAdminCredentials();
+  if (configured) {
+    if (!safeEqual(normalizedEmail, configured.email) || !safeEqual(password, configured.password)) return null;
+    return { id: "environment-admin" };
+  }
+
+  // Compatibility fallback for existing installations not yet configured with env credentials.
   const [rows] = await getMySqlPool().execute<AdminUserRow[]>(
     `SELECT id, password_hash, password_salt
      FROM admin_users
