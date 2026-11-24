@@ -152,10 +152,14 @@ export function StoreProvider({ children, initialProducts, initialNewArrivals, i
   }, [getSessionHeaders]);
 
   useEffect(() => {
-    fetch(`/api/categories?locale=${locale}`)
+    const controller = new AbortController();
+    fetch(`/api/categories?locale=${locale}`, { signal: controller.signal })
       .then((response) => response.ok ? response.json() : null)
-      .then((data: { categories?: Array<{ slug: string; name: string; image: string; itemCount: number; bgColor: string; accentColor: string }> } | null) => setCategories(data?.categories ?? []))
-      .catch(() => setCategories([]));
+      .then((data: { categories?: Array<{ slug: string; name: string; image: string; itemCount: number; bgColor: string; accentColor: string }> } | null) => {
+        if (!controller.signal.aborted) setCategories(data?.categories ?? []);
+      })
+      .catch(() => {});
+    return () => controller.abort();
   }, [locale]);
 
   const fetchCatalog = useCallback(

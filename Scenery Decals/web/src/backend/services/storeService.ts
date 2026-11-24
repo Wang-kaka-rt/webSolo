@@ -3,7 +3,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import type { RowDataPacket } from "mysql2";
 import { getMySqlPool } from "@/backend/db/mysql";
-import type { CartItem, CartState, OrderConfirmation, Product, StickerFinish } from "@/shared/types/store";
+import type { CartItem, CartState, FinishOption, OrderConfirmation, Product, StickerFinish } from "@/shared/types/store";
 
 export type StoreLocale = "zh" | "en" | "ko";
 const FREE_SHIPPING_THRESHOLD = 50;
@@ -11,7 +11,7 @@ const FREE_SHIPPING_THRESHOLD = 50;
 interface StoreProductRow extends RowDataPacket {
   id: string; slug: string; title: string; title_zh: string | null; title_ko: string | null;
   category: string; category_label: string; category_label_zh: string | null; category_label_ko: string | null;
-  price: string | number; tag: string | null; image_url: string; images_json: string | string[] | null; description: string; description_zh: string | null; description_ko: string | null;
+  price: string | number; tag: string | null; tag_zh: string | null; tag_ko: string | null; image_url: string; images_json: string | string[] | null; description: string; description_zh: string | null; description_ko: string | null;
   sheet_count: string; dimensions: string; finishes_json: string | string[] | null; section: "best-seller" | "new-arrival" | "both"; on_hand_quantity: number; reserved_quantity: number;
 }
 interface StoreCategoryRow extends RowDataPacket {
@@ -45,21 +45,21 @@ function parseImages(value: StoreProductRow["images_json"], fallback: string) {
   if (value) { try { return (JSON.parse(value) as string[]).map(browserImageUrl); } catch {} }
   return fallback ? [browserImageUrl(fallback)] : [];
 }
-function toProduct(row: StoreProductRow, locale: StoreLocale): Product {
+function toProduct(row: StoreProductRow, locale: StoreLocale, finishLabels: Record<string, string>): Product {
   return {
     id: row.id, slug: row.slug,
     title: localized(locale, row.title, row.title_zh, row.title_ko),
     category: row.category,
     categoryLabel: localized(locale, row.category_label, row.category_label_zh, row.category_label_ko),
-    price: Number(row.price), tag: row.tag, image: parseImages(row.images_json, row.image_url)[0] ?? browserImageUrl(row.image_url), images: parseImages(row.images_json, row.image_url),
+    price: Number(row.price), tag: localized(locale, row.tag, row.tag_zh, row.tag_ko), tagCode: row.tag, image: parseImages(row.images_json, row.image_url)[0] ?? browserImageUrl(row.image_url), images: parseImages(row.images_json, row.image_url),
     description: localized(locale, row.description, row.description_zh, row.description_ko),
-    sheetCount: row.sheet_count, dimensions: row.dimensions, finishes: parseFinishes(row.finishes_json), section: row.section, availableQuantity: Math.max(0, Number(row.on_hand_quantity) - Number(row.reserved_quantity)),
+    sheetCount: row.sheet_count, dimensions: row.dimensions, finishes: parseFinishes(row.finishes_json), finishLabels, section: row.section, availableQuantity: Math.max(0, Number(row.on_hand_quantity) - Number(row.reserved_quantity)),
     rating: 0, reviewCount: "0", rawReviewCount: 0, reviews: [],
   };
 }
 
 const productSelect = `SELECT p.id, p.slug, p.title, p.title_zh, p.title_ko, p.category, p.category_label, p.category_label_zh, p.category_label_ko,
- p.price, p.tag, p.image_url, p.images_json, p.description, p.description_zh, p.description_ko, p.sheet_count, p.dimensions, p.finishes_json, p.section,
+ p.price, p.tag, p.tag_zh, p.tag_ko, p.image_url, p.images_json, p.description, p.description_zh, p.description_ko, p.sheet_count, p.dimensions, p.finishes_json, p.section,
  COALESCE(i.on_hand_quantity, 0) AS on_hand_quantity, COALESCE(i.reserved_quantity, 0) AS reserved_quantity
  FROM products p LEFT JOIN inventory i ON i.product_id = p.id WHERE p.is_active = TRUE`;
 
@@ -75,11 +75,20 @@ export async function listStoreCategories(locale: StoreLocale = "en"): Promise<S
   }));
 }
 
-export async function listStoreFinishes(): Promise<string[]> {
-  const [rows] = await getMySqlPool().query<Array<RowDataPacket & { finishes_json: string | string[] | null }>>(
-    "SELECT finishes_json FROM products WHERE is_active = TRUE"
+async function getFinishLabels(locale: StoreLocale): Promise<Record<string, string>> {
+  const column = locale === "zh" ? "name_zh" : locale === "ko" ? "name_ko" : "name";
+  const [rows] = await getMySqlPool().query<Array<RowDataPacket & { code: string; label: string }>>(`SELECT code, ${column} AS label FROM product_finishes`);
+  return Object.fromEntries(rows.map((row) => [row.code, row.label]));
+}
+
+export async function listStoreFinishes(locale: StoreLocale = "en"): Promise<FinishOption[]> {
+  const column = locale === "zh" ? "name_zh" : locale === "ko" ? "name_ko" : "name";
+  const [rows] = await getMySqlPool().query<Array<RowDataPacket & { code: string; label: string }>>(
+    `SELECT f.code, ${column} AS label FROM product_finishes f
+     WHERE EXISTS (SELECT 1 FROM products p WHERE p.is_active = TRUE AND JSON_CONTAINS(p.finishes_json, JSON_QUOTE(f.code)))
+     ORDER BY label`
   );
-  return [...new Set(rows.flatMap((row) => parseFinishes(row.finishes_json).map((finish) => finish.trim()).filter(Boolean)))].sort((a, b) => a.localeCompare(b));
+  return rows.map((row) => ({ id: row.code, label: row.label }));
 }
 
 export async function getStoreCategory(slug: string, locale: StoreLocale = "en") {
@@ -96,21 +105,24 @@ export async function listProducts(params: { category?: string | null; q?: strin
   if (params.finish && params.finish !== "all") { clauses.push("JSON_CONTAINS(p.finishes_json, JSON_QUOTE(?))"); values.push(params.finish); }
   if (params.q?.trim()) { clauses.push("(CAST(p.product_code AS CHAR) LIKE ? OR p.title LIKE ? OR p.title_zh LIKE ? OR p.title_ko LIKE ? OR p.description LIKE ? OR p.description_zh LIKE ? OR p.description_ko LIKE ?)"); const needle = `%${params.q.trim()}%`; values.push(needle, needle, needle, needle, needle, needle, needle); }
   const order = params.sort === "price-asc" ? "p.price ASC" : params.sort === "price-desc" ? "p.price DESC" : "p.created_at DESC";
-  const [rows] = await getMySqlPool().execute<StoreProductRow[]>(`${productSelect} AND ${clauses.join(" AND ")} ORDER BY ${order}`, values);
-  return rows.map((row) => toProduct(row, locale));
+  const [[rows], finishLabels] = await Promise.all([
+    getMySqlPool().execute<StoreProductRow[]>(`${productSelect} AND ${clauses.join(" AND ")} ORDER BY ${order}`, values),
+    getFinishLabels(locale),
+  ]);
+  return rows.map((row) => toProduct(row, locale, finishLabels));
 }
 
 export async function getProductById(id: string, locale: StoreLocale = "en") {
-  const [rows] = await getMySqlPool().execute<StoreProductRow[]>(`${productSelect} AND p.id = ? LIMIT 1`, [id]);
-  return rows[0] ? toProduct(rows[0], locale) : undefined;
+  const [[rows], finishLabels] = await Promise.all([getMySqlPool().execute<StoreProductRow[]>(`${productSelect} AND p.id = ? LIMIT 1`, [id]), getFinishLabels(locale)]);
+  return rows[0] ? toProduct(rows[0], locale, finishLabels) : undefined;
 }
 export async function getProductBySlug(slug: string, locale: StoreLocale = "en") {
-  const [rows] = await getMySqlPool().execute<StoreProductRow[]>(`${productSelect} AND p.slug = ? LIMIT 1`, [slug]);
-  return rows[0] ? toProduct(rows[0], locale) : undefined;
+  const [[rows], finishLabels] = await Promise.all([getMySqlPool().execute<StoreProductRow[]>(`${productSelect} AND p.slug = ? LIMIT 1`, [slug]), getFinishLabels(locale)]);
+  return rows[0] ? toProduct(rows[0], locale, finishLabels) : undefined;
 }
 export async function getRelatedProducts(product: Product, limit = 4, locale: StoreLocale = "en") {
-  const [rows] = await getMySqlPool().execute<StoreProductRow[]>(`${productSelect} AND p.id <> ? ORDER BY (p.category = ?) DESC, p.created_at DESC LIMIT ?`, [product.id, product.category, limit]);
-  return rows.map((row) => toProduct(row, locale));
+  const [[rows], finishLabels] = await Promise.all([getMySqlPool().execute<StoreProductRow[]>(`${productSelect} AND p.id <> ? ORDER BY (p.category = ?) DESC, p.created_at DESC LIMIT ?`, [product.id, product.category, limit]), getFinishLabels(locale)]);
+  return rows.map((row) => toProduct(row, locale, finishLabels));
 }
 
 export function buildCartState(items: CartItem[]): CartState {

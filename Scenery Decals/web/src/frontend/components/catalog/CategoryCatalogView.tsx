@@ -7,7 +7,7 @@ import { useLocale } from "@/frontend/context/LocaleContext";
 import { message } from "@/frontend/i18n/messages";
 import { useStore } from "@/frontend/context/StoreContext";
 import { ProductCard } from "@/frontend/components/catalog/ProductCard";
-import { CategorySlug, Product, StickerFinish } from "@/shared/types/store";
+import { CategorySlug, FinishOption, Product, StickerFinish } from "@/shared/types/store";
 
 interface CategoryCatalogViewProps {
   initialSlug: CategorySlug;
@@ -24,18 +24,20 @@ export function CategoryCatalogView({
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [sort, setSort] = useState<"popular" | "rating" | "price-asc">("popular");
   const [finish, setFinish] = useState<"all" | StickerFinish>("all");
-  const [finishOptions, setFinishOptions] = useState<("all" | StickerFinish)[]>(["all"]);
+  const [finishOptions, setFinishOptions] = useState<FinishOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   const activeCategory = categories.find((c) => c.slug === initialSlug);
 
   useEffect(() => {
-    fetch("/api/finishes")
+    const controller = new AbortController();
+    fetch(`/api/finishes?locale=${locale}`, { signal: controller.signal })
       .then((response) => response.ok ? response.json() : null)
-      .then((data: { finishes?: string[] } | null) => setFinishOptions(["all", ...(data?.finishes ?? [])]))
-      .catch(() => setFinishOptions(["all"]));
-  }, []);
+      .then((data: { finishes?: FinishOption[] } | null) => setFinishOptions(data?.finishes ?? []))
+      .catch(() => {});
+    return () => controller.abort();
+  }, [locale]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -153,13 +155,13 @@ export function CategoryCatalogView({
               {copy.paperFinish}
             </h2>
             <div className="mt-2 flex flex-wrap gap-1.5 lg:flex-col lg:gap-1">
-              {finishOptions.map((opt) => {
-                const isSelected = finish === opt;
+              {[{ id: "all", label: copy.allFinishes }, ...finishOptions].map((opt) => {
+                const isSelected = finish === opt.id;
                 return (
                   <button
-                    key={opt}
+                    key={opt.id}
                     type="button"
-                    onClick={() => setFinish(opt)}
+                    onClick={() => setFinish(opt.id)}
                     className={`flex items-center justify-between rounded-md px-2.5 py-1.5 text-left text-xs transition-colors ${
                       isSelected
                         ? "bg-[#FFF0F5] font-semibold text-[#5B3E3E]"
@@ -167,7 +169,7 @@ export function CategoryCatalogView({
                     }`}
                   >
                     <span className="whitespace-nowrap">
-                      {opt === "all" ? copy.allFinishes : opt}
+                      {opt.label}
                     </span>
                     {isSelected && (
                       <Check className="ml-2 h-3.5 w-3.5 shrink-0 text-[#E67B99]" />
@@ -258,7 +260,7 @@ export function CategoryCatalogView({
         <section className="absolute inset-x-0 bottom-0 max-h-[78vh] overflow-y-auto rounded-t-2xl bg-[#FFFDFB] p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
           <div className="flex items-center justify-between"><h2 className="font-display text-xl font-bold text-[#5B3E3E]">{copy.filterProducts}</h2><button aria-label={copy.closeDialog} className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFF0F5] text-[#6B4C4C]" onClick={() => setIsMobileFiltersOpen(false)} type="button"><X className="h-4 w-4" /></button></div>
           <section className="mt-5"><h3 className="font-display text-sm font-bold text-[#5B3E3E]">{copy.collections}</h3><div className="mt-3 flex flex-wrap gap-2"><Link className={`rounded-full px-3 py-2 text-sm ${initialSlug === "all" ? "bg-[#F291AC] font-semibold text-white" : "bg-[#FFF0F5] text-[#6B4C4C]"}`} href="/categories" onClick={() => setIsMobileFiltersOpen(false)}>{copy.allStickerPacks}</Link>{categories.map((category) => <Link className={`rounded-full px-3 py-2 text-sm ${initialSlug === category.slug ? "bg-[#F291AC] font-semibold text-white" : "bg-[#FFF0F5] text-[#6B4C4C]"}`} href={`/categories/${category.slug}`} key={category.slug} onClick={() => setIsMobileFiltersOpen(false)}>{category.name}</Link>)}</div></section>
-          <section className="mt-6 border-t border-[#F3E3E8] pt-5"><h3 className="font-display text-sm font-bold text-[#5B3E3E]">{copy.paperFinish}</h3><div className="mt-3 flex flex-wrap gap-2">{finishOptions.map((option) => { const selected = finish === option; return <button className={`rounded-full px-3 py-2 text-sm ${selected ? "bg-[#F291AC] font-semibold text-white" : "bg-[#FFF0F5] text-[#6B4C4C]"}`} key={option} onClick={() => { setFinish(option); setIsMobileFiltersOpen(false); }} type="button">{option === "all" ? copy.allFinishes : option}</button>; })}</div></section>
+          <section className="mt-6 border-t border-[#F3E3E8] pt-5"><h3 className="font-display text-sm font-bold text-[#5B3E3E]">{copy.paperFinish}</h3><div className="mt-3 flex flex-wrap gap-2">{[{ id: "all", label: copy.allFinishes }, ...finishOptions].map((option) => { const selected = finish === option.id; return <button className={`rounded-full px-3 py-2 text-sm ${selected ? "bg-[#F291AC] font-semibold text-white" : "bg-[#FFF0F5] text-[#6B4C4C]"}`} key={option.id} onClick={() => { setFinish(option.id); setIsMobileFiltersOpen(false); }} type="button">{option.label}</button>; })}</div></section>
         </section>
       </div>}
     </div>

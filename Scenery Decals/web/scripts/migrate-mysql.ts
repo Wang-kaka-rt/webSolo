@@ -43,6 +43,8 @@ async function main() {
       ["category_label_ko", "VARCHAR(120) NULL"],
       ["price", "DECIMAL(10,2) NOT NULL DEFAULT 0"],
       ["tag", "VARCHAR(20) NULL"],
+      ["tag_zh", "VARCHAR(20) NULL"],
+      ["tag_ko", "VARCHAR(20) NULL"],
       ["image_url", "VARCHAR(500) NOT NULL DEFAULT ''"],
       ["images_json", "JSON NULL"],
       ["description", "TEXT NOT NULL"],

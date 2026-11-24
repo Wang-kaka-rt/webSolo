@@ -33,7 +33,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {product.tag && (
           <span
             className={`pointer-events-none absolute left-2.5 top-2.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-white shadow-sm ${
-              product.tag === "Hot" ? "bg-[#EE829B]" : "bg-[#88BC6E]"
+              product.tagCode === "Hot" ? "bg-[#EE829B]" : "bg-[#88BC6E]"
             }`}
           >
             {product.tag}

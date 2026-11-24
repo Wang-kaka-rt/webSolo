@@ -141,7 +141,7 @@ export function ProductDetailView({
               {product.tag && (
                 <span
                   className={`absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-semibold text-white shadow-sm ${
-                    product.tag === "Hot" ? "bg-[#EE829B]" : "bg-[#88BC6E]"
+                    product.tagCode === "Hot" ? "bg-[#EE829B]" : "bg-[#88BC6E]"
                   }`}
                 >
                   {displayedProduct.tag}
@@ -221,7 +221,7 @@ export function ProductDetailView({
                         : "border-[#EED6DF] bg-white text-[#8B6D6D] hover:border-[#F291AC]"
                     }`}
                   >
-                    {finish}
+                    {product.finishLabels?.[finish] ?? finish}
                   </button>
                 ))}
               </div>

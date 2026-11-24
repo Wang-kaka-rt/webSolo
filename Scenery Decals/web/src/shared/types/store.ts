@@ -2,6 +2,11 @@ export type CategorySlug = string;
 
 export type StickerFinish = string;
 
+export interface FinishOption {
+  id: StickerFinish;
+  label: string;
+}
+
 export type ProductTag = string | null;
 
 export interface Review {
@@ -23,12 +28,14 @@ export interface Product {
   reviewCount: string;
   rawReviewCount: number;
   tag: ProductTag;
+  tagCode?: ProductTag;
   image: string;
   images?: string[];
   description: string;
   sheetCount: string;
   dimensions: string;
   finishes: StickerFinish[];
+  finishLabels?: Record<StickerFinish, string>;
   section: "best-seller" | "new-arrival" | "both";
   availableQuantity?: number;
   reviews: Review[];
