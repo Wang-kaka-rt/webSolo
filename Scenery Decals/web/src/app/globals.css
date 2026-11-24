@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-display: var(--font-fredoka), "Comic Sans MS", sans-serif;
+  --font-sans: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+  --color-cream: #FFFDFB;
+  --color-blush: #FFE5EE;
+  --color-cocoa: #5B3E3E;
+  --color-cocoa-muted: #8B6D6D;
+  --color-pink-cta: #F291AC;
+  --color-pink-cta-hover: #E67B99;
+  --color-brown-cta: #8B635C;
+  --color-footer-pink: #FDEAF0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #FFFDFB;
+  color: #5B3E3E;
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-fredoka), system-ui, sans-serif;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.scallop-top {
+  background-image: radial-gradient(circle at 20px 20px, #FDEAF0 20px, transparent 21px);
+  background-size: 40px 24px;
+  background-repeat: repeat-x;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+/* Keep admin tables and outlined actions softly separated, never pure black. */
+main table thead {
+  border-color: #cbd5e1;
+}
+
+main table tbody.divide-y > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e2e8f0;
+}
+
+main table tr,
+main table th,
+main table td {
+  border-color: #e2e8f0 !important;
+}
+
+main table button.border,
+main table a.border {
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+/* Consistent custom admin fields: soft outlines and a clear violet focus state. */
+main input:not([type="checkbox"]):not([type="radio"]),
+main textarea,
+main select {
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+main input:not([type="checkbox"]):not([type="radio"]):focus,
+main textarea:focus,
+main select:focus {
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+  outline: none;
+}
+
+/* Shared cloud-shaped speech bubble for the storefront hero and its admin canvas. */
+div[class*="max-w-[22%]"][class*="bg-white/95"],
+div[class*="max-w-[20%]"][class*="bg-white/95"] {
+  isolation: isolate;
+  border-radius: 42% 48% 44% 46% / 58% 54% 48% 44%;
+}
+
+div[class*="max-w-[22%]"][class*="bg-white/95"]::before,
+div[class*="max-w-[22%]"][class*="bg-white/95"]::after,
+div[class*="max-w-[20%]"][class*="bg-white/95"]::before,
+div[class*="max-w-[20%]"][class*="bg-white/95"]::after {
+  content: "";
+  position: absolute;
+  display: block;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #f5dce4;
+  border-radius: 50%;
+  z-index: 0;
+}
+
+div[class*="max-w-[22%]"][class*="bg-white/95"] > p,
+div[class*="max-w-[20%]"][class*="bg-white/95"] > p {
+  position: relative;
+  z-index: 1;
+}
+
+div[class*="max-w-[22%]"][class*="bg-white/95"]::before,
+div[class*="max-w-[20%]"][class*="bg-white/95"]::before {
+  top: -15px;
+  left: 15%;
+  width: 32px;
+  height: 32px;
+}
+
+div[class*="max-w-[22%]"][class*="bg-white/95"]::after,
+div[class*="max-w-[20%]"][class*="bg-white/95"]::after {
+  top: -20px;
+  right: 17%;
+  width: 38px;
+  height: 38px;
+}

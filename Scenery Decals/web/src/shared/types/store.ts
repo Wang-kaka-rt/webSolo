@@ -1,0 +1,84 @@
+export type CategorySlug = string;
+
+export type StickerFinish = string;
+
+export type ProductTag = string | null;
+
+export interface Review {
+  id: string;
+  author: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+export interface Product {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  categoryLabel: string;
+  price: number;
+  rating: number;
+  reviewCount: string;
+  rawReviewCount: number;
+  tag: ProductTag;
+  image: string;
+  images?: string[];
+  description: string;
+  sheetCount: string;
+  dimensions: string;
+  finishes: StickerFinish[];
+  section: "best-seller" | "new-arrival" | "both";
+  availableQuantity?: number;
+  reviews: Review[];
+}
+
+export interface CategoryTile {
+  slug: string;
+  name: string;
+  image: string;
+  bgColor: string;
+  accentColor: string;
+  itemCount: number;
+}
+
+export interface CartItem {
+  productId: string;
+  title: string;
+  price: number;
+  image: string;
+  finish: StickerFinish;
+  quantity: number;
+}
+
+export interface CartState {
+  items: CartItem[];
+  subtotal: number;
+  freeShippingThreshold: number;
+  qualifiesFreeShipping: boolean;
+  totalCount: number;
+}
+
+export interface OrderConfirmation {
+  orderId: string;
+  customerName: string;
+  email: string;
+  address: string;
+  items: CartItem[];
+  subtotal: number;
+  shippingFee: number;
+  total: number;
+  estimatedDelivery: string;
+  createdAt: string;
+}
+
+export type InfoModalTopic =
+  | "about"
+  | "contact"
+  | "shipping"
+  | "returns"
+  | "privacy"
+  | "terms"
+  | "inspiration"
+  | null;
